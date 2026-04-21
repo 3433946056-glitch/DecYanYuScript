@@ -1,0 +1,37 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    # 1. 使用 JDK 17（必须）
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    # 2. 赋予执行权限
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # 3. 打包 APK（核心命令）
+    - name: Build release APK
+      run: ./gradlew assembleRelease
+
+    # 4. 上传 APK 到 GitHub（构建完成后可下载）
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-apk
+        path: app/build/outputs/apk/release/*.apk
